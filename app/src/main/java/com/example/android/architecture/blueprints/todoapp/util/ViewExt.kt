@@ -35,7 +35,7 @@ import com.google.android.material.snackbar.Snackbar
  */
 fun View.showSnackbar(snackbarText: String, timeLength: Int) {
     Snackbar.make(this, snackbarText, timeLength).run {
-        addCallback(object: Snackbar.Callback() {
+        addCallback(object : Snackbar.Callback() {
             override fun onShown(sb: Snackbar?) {
                 EspressoIdlingResource.increment()
             }
@@ -52,11 +52,10 @@ fun View.showSnackbar(snackbarText: String, timeLength: Int) {
  * Triggers a snackbar message when the value contained by snackbarTaskMessageLiveEvent is modified.
  */
 fun View.setupSnackbar(
-    lifecycleOwner: LifecycleOwner,
-    snackbarEvent: LiveData<Event<Int>>,
-    timeLength: Int
+        lifecycleOwner: LifecycleOwner,
+        snackbarEvent: LiveData<Event<Int>>,
+        timeLength: Int
 ) {
-
     snackbarEvent.observe(lifecycleOwner, Observer { event ->
         event.getContentIfNotHandled()?.let {
             showSnackbar(context.getString(it), timeLength)

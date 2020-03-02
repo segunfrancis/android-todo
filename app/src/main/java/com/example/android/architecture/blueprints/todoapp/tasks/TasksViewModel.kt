@@ -43,9 +43,7 @@ import java.util.ArrayList
  * property changes. This is done by assigning a [Bindable] annotation to the property's
  * getter method.
  */
-class TasksViewModel(
-    private val tasksRepository: TasksRepository
-) : ViewModel() {
+class TasksViewModel(private val tasksRepository: TasksRepository) : ViewModel() {
 
     private val _items = MutableLiveData<List<Task>>().apply { value = emptyList() }
     val items: LiveData<List<Task>> = _items
@@ -103,21 +101,21 @@ class TasksViewModel(
         when (requestType) {
             TasksFilterType.ALL_TASKS -> {
                 setFilter(R.string.label_all, R.string.no_tasks_all,
-                    R.drawable.logo_no_fill, true)
+                        R.drawable.logo_no_fill, true)
             }
             TasksFilterType.ACTIVE_TASKS -> {
                 setFilter(R.string.label_active, R.string.no_tasks_active,
-                    R.drawable.ic_check_circle_96dp, false)
+                        R.drawable.ic_check_circle_96dp, false)
             }
             TasksFilterType.COMPLETED_TASKS -> {
                 setFilter(R.string.label_completed, R.string.no_tasks_completed,
-                    R.drawable.ic_verified_user_96dp, false)
+                        R.drawable.ic_verified_user_96dp, false)
             }
         }
     }
 
     private fun setFilter(@StringRes filteringLabelString: Int, @StringRes noTasksLabelString: Int,
-            @DrawableRes noTaskIconDrawable: Int, tasksAddVisible: Boolean) {
+                          @DrawableRes noTaskIconDrawable: Int, tasksAddVisible: Boolean) {
         _currentFilteringLabel.value = filteringLabelString
         _noTasksLabel.value = noTasksLabelString
         _noTaskIconRes.value = noTaskIconDrawable
@@ -159,13 +157,13 @@ class TasksViewModel(
     fun showEditResultMessage(result: Int) {
         when (result) {
             EDIT_RESULT_OK -> _snackbarText.setValue(
-                Event(R.string.successfully_saved_task_message)
+                    Event(R.string.successfully_saved_task_message)
             )
             ADD_EDIT_RESULT_OK -> _snackbarText.setValue(
-                Event(R.string.successfully_added_task_message)
+                    Event(R.string.successfully_added_task_message)
             )
             DELETE_RESULT_OK -> _snackbarText.setValue(
-                Event(R.string.successfully_deleted_task_message)
+                    Event(R.string.successfully_deleted_task_message)
             )
         }
 
