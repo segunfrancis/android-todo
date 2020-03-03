@@ -17,27 +17,30 @@
 package com.example.android.architecture.blueprints.todoapp.tasks
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.android.architecture.blueprints.todoapp.LiveDataTestUtil
-import com.example.android.architecture.blueprints.todoapp.MainCoroutineRule
-import com.example.android.architecture.blueprints.todoapp.R
-import com.example.android.architecture.blueprints.todoapp.assertLiveDataEventTriggered
-import com.example.android.architecture.blueprints.todoapp.assertSnackbarMessage
+import androidx.lifecycle.Observer
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.android.architecture.blueprints.todoapp.*
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.data.source.FakeRepository
 import com.example.android.architecture.blueprints.todoapp.util.ADD_EDIT_RESULT_OK
 import com.example.android.architecture.blueprints.todoapp.util.DELETE_RESULT_OK
 import com.example.android.architecture.blueprints.todoapp.util.EDIT_RESULT_OK
+import com.example.android.architecture.blueprints.todoapp.LiveDataTestUtil.getOrAwaitValue
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
+import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
 /**
  * Unit tests for the implementation of [TasksViewModel]
  */
 @ExperimentalCoroutinesApi
+@RunWith(AndroidJUnit4::class)
 class TasksViewModelTest {
 
     // Subject under test
@@ -52,7 +55,8 @@ class TasksViewModelTest {
     var mainCoroutineRule = MainCoroutineRule()
 
     // Executes each task synchronously using Architecture Components.
-    @get:Rule var instantExecutorRule = InstantTaskExecutorRule()
+    @get:Rule
+    var instantExecutorRule = InstantTaskExecutorRule()
 
     @Before
     fun setupViewModel() {
@@ -181,7 +185,7 @@ class TasksViewModelTest {
 
         // Verify snackbar is updated
         assertSnackbarMessage(
-            tasksViewModel.snackbarMessage, R.string.completed_tasks_cleared)
+                tasksViewModel.snackbarMessage, R.string.completed_tasks_cleared)
     }
 
     @Test
@@ -191,7 +195,7 @@ class TasksViewModelTest {
 
         // The snackbar is updated
         assertSnackbarMessage(
-            tasksViewModel.snackbarMessage, R.string.successfully_saved_task_message)
+                tasksViewModel.snackbarMessage, R.string.successfully_saved_task_message)
     }
 
     @Test
@@ -201,7 +205,7 @@ class TasksViewModelTest {
 
         // The snackbar is updated
         assertSnackbarMessage(
-            tasksViewModel.snackbarMessage, R.string.successfully_added_task_message)
+                tasksViewModel.snackbarMessage, R.string.successfully_added_task_message)
     }
 
     @Test
@@ -211,7 +215,7 @@ class TasksViewModelTest {
 
         // The snackbar is updated
         assertSnackbarMessage(
-            tasksViewModel.snackbarMessage, R.string.successfully_deleted_task_message)
+                tasksViewModel.snackbarMessage, R.string.successfully_deleted_task_message)
     }
 
     @Test
@@ -228,7 +232,7 @@ class TasksViewModelTest {
 
         // The snackbar is updated
         assertSnackbarMessage(
-            tasksViewModel.snackbarMessage, R.string.task_marked_complete)
+                tasksViewModel.snackbarMessage, R.string.task_marked_complete)
     }
 
     @Test
@@ -245,7 +249,7 @@ class TasksViewModelTest {
 
         // The snackbar is updated
         assertSnackbarMessage(
-            tasksViewModel.snackbarMessage, R.string.task_marked_active)
+                tasksViewModel.snackbarMessage, R.string.task_marked_active)
     }
 
     @Test
@@ -255,5 +259,32 @@ class TasksViewModelTest {
 
         // Then the "Add task" action is visible
         assertThat(LiveDataTestUtil.getValue(tasksViewModel.tasksAddViewVisible)).isTrue()
+    }
+
+    /* My Tests */
+    @Test
+    fun addNewTask_setsNewTaskEvent() {
+        // Create observer - no need for it to do anything
+        val observer = Observer<Event<Unit>> {}
+        try {
+            // Observe the LiveData forever
+            tasksViewModel.newTaskEvent.observeForever(observer)
+
+            // When adding a new task
+            tasksViewModel.addNewTask()
+
+            // Then the new task event is triggered
+            val value = tasksViewModel.newTaskEvent.getOrAwaitValue()
+            org.hamcrest.MatcherAssert.assertThat(value.getContentIfNotHandled(), (not(nullValue())))
+        } finally {
+            // Whatever happens, don't forget to remove the observer!
+            tasksViewModel.newTaskEvent.removeObserver(observer)
+        }
+    }
+
+    @Test
+    fun setFilterAllTasks_tasksAddViewVisible() {
+        tasksViewModel.setFiltering(TasksFilterType.ALL_TASKS)
+        org.hamcrest.MatcherAssert.assertThat(tasksViewModel.tasksAddViewVisible.getOrAwaitValue(), `is`(true))
     }
 }
